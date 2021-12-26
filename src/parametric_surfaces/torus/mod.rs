@@ -1,12 +1,11 @@
 mod geometry;
 mod shaders;
 mod transform;
-use js_sys::{JsString, Float32Array, Number, Uint16Array};
+use js_sys::{JsString, Float32Array, Number};
 use std::collections::HashMap;
 use wasm_bindgen::{JsValue, JsCast};
 use wasm_bindgen::prelude::wasm_bindgen;
-use web_sys::{HtmlCanvasElement, console};
-use web_sys::WebGlBuffer as Buffer;
+use web_sys::HtmlCanvasElement;
 use web_sys::WebGlProgram as Program;
 use web_sys::WebGlShader as Shader;
 use web_sys::WebGlRenderingContext as GL;
