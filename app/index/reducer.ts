@@ -1,5 +1,4 @@
 export enum ActionType {
-  SetWasm = "set-wasm",
   SetSurface = "set-surface",
   Err = "err"
 }
@@ -10,21 +9,17 @@ export interface Action {
 }
 
 export interface State {
-  wasm: Record<string, any>;
+  parametricSurface: Record<string, any> | null;
   error: boolean;
-  parametricSurface: Record<string, any>;
 }
 
 export const InitialState: State = {
-  wasm: null,
-  error: false,
-  parametricSurface: null
+  parametricSurface: null,
+  error: false
 }
 
 export function reducer(state: State, action: Action): State {
   switch (action.kind) {
-    case ActionType.SetWasm:
-      return { ...state, wasm: action.payload };
     case ActionType.Err:
       console.error(action.payload);
       return { ...state, error: true };

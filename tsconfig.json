@@ -4,7 +4,7 @@
       "baseUrl": ".",
       "paths": {
         "@components/*": ["app/components/*"],
-        "@pages/*": ["app/pages/*"]
+        "@index/*": ["app/index/*"]
       },
       "sourceMap": true,
       "noImplicitAny": true,

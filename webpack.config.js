@@ -9,7 +9,7 @@ module.exports = (env, args) => {
     const isProductionMode = (args.mode === 'production');
 
     return {
-        entry: './app/index.tsx',
+        entry: './app/app.tsx',
         module: {
           rules: [
             {

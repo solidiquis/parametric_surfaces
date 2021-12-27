@@ -1,21 +1,23 @@
 import * as React from "react";
 import { useEffect, useReducer, useRef } from "react";
-import { ActionType, InitialState, reducer } from "./reducer";
-
-// 60 frames per second
-const FPS_THROTTLE: number = 1000 / 60;
+import Canvas from "@components/canvas";
+import { ActionType, reducer, InitialState } from "./reducer"
 
 interface Props {
-  WasmModule: Record<string, any>
+  wasmModule: Record<string, any>;
 }
 
-export default ({ WasmModule }: Props) => {
+const CANVAS_WIDTH = 800;
+const CANVAS_HEIGHT = 600;
+const FPS_THROTTLE = 1000.0 / 60;
+
+export default ({ wasmModule }: Props) => {
   const [state, dispatch] = useReducer(reducer, InitialState);
   const initMount = useRef(true);
   const initMount2 = useRef(true);
   const canvasRef = useRef(null);
   const initTime = Date.now();
-  let lastDrawTime = -1; 
+  let lastDrawTime = -1;
 
   const animate = () => {
     window.requestAnimationFrame(animate);
@@ -48,7 +50,7 @@ export default ({ WasmModule }: Props) => {
     }
 
     try {
-      const torus = new WasmModule.Torus("parametric-surface");
+      const torus = new wasmModule.Torus("parametric-surface");
       dispatch({ kind: ActionType.SetSurface, payload: torus });
     } catch(e) {
       dispatch({ kind: ActionType.Err, payload: `Failed to initialize parametric surface with error: ${e}` });
@@ -65,18 +67,16 @@ export default ({ WasmModule }: Props) => {
     animate();
   }, [state.parametricSurface]);
 
-
   return (
     <div>
-      {
-        state.error ?
-        <h1 style={{ color: "white" }}>{"Something went wrong..."}</h1> :
-        <canvas
-          id="parametric-surface"
+      { state.error ? <h1 style={{ color: "white" }}>{"Something went wrong."}</h1> :
+        <Canvas
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
           ref={canvasRef}
-          height="600" width="800"
-        ></canvas>
+        />
       }
     </div>
   )
 }
+
