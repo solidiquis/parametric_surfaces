@@ -1,5 +1,7 @@
-const webpack = require('webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
@@ -7,21 +9,32 @@ module.exports = (env, args) => {
     const isProductionMode = (args.mode === 'production');
 
     return {
-        entry: './app/index.js',
+        entry: './app/index.tsx',
         module: {
           rules: [
             {
-              test: /\.(js|jsx)$/,
+              test: /\.(js|jsx|tsx|ts)$/,
               exclude: /node_modules/,
-              use: ['babel-loader'],
-            },
+              use: {
+                loader: 'babel-loader',
+                options: {
+                  presets: [
+                    "@babel/preset-env",
+                    "@babel/preset-react",
+                    "@babel/preset-typescript"
+                  ]
+                }
+              },
+            }
           ],
         },
         resolve: {
-          alias: {
-            rust: path.resolve(__dirname, "./pkg")
-          },
-          extensions: ['*', '.js', '.jsx'],
+          extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
+          plugins: [
+            new TsconfigPathsPlugin({
+              configFile: "./tsconfig.json" 
+            }),
+          ]
         },
         output: {
             path: path.resolve(__dirname, 'dist'),
@@ -35,7 +48,7 @@ module.exports = (env, args) => {
         },
         plugins: [
             new HtmlWebpackPlugin({
-                template: './app/index.html'
+                template: 'index.html'
             }),
             new WasmPackPlugin({
                 crateDirectory: path.resolve(__dirname, '.')
@@ -43,7 +56,13 @@ module.exports = (env, args) => {
             new webpack.ProvidePlugin({
                 TextDecoder: ['text-encoding', 'TextDecoder'],
                 TextEncoder: ['text-encoding', 'TextEncoder']
-            })
+            }),
+            new ForkTsCheckerWebpackPlugin({
+              async: false,
+              eslint: {
+                files: "./app/**/*",
+              },
+            }),
         ],
     };
 }
