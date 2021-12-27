@@ -1,4 +1,15 @@
+import react from "react";
+import ReactDOM from "react-dom";
 const rust = import("./pkg/index");
+
+function Test() {
+  return (
+    <>
+      <h1>Hello World</h1>
+    </>
+  )
+}
+
 const canvas = document.getElementById("parametric-surface");
 const gl = canvas.getContext('webgl', { antialias: true });
 

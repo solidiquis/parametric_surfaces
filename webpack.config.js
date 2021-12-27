@@ -8,12 +8,27 @@ module.exports = (env, args) => {
 
     return {
         entry: './index.js',
+        module: {
+          rules: [
+            {
+              test: /\.(js|jsx)$/,
+              exclude: /node_modules/,
+              use: ['babel-loader'],
+            },
+          ],
+        },
+        resolve: {
+          extensions: ['*', '.js', '.jsx'],
+        },
         output: {
             path: path.resolve(__dirname, 'dist'),
             filename: isProductionMode ? '[name].[contenthash].js' : '[name].[hash].js',
         },
         experiments: {
           asyncWebAssembly: true,
+        },
+        devServer: {
+          hot: true
         },
         plugins: [
             new HtmlWebpackPlugin({
@@ -26,6 +41,6 @@ module.exports = (env, args) => {
                 TextDecoder: ['text-encoding', 'TextDecoder'],
                 TextEncoder: ['text-encoding', 'TextEncoder']
             })
-        ]
+        ],
     };
 }
