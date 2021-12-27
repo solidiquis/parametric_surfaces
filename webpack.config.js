@@ -7,7 +7,7 @@ module.exports = (env, args) => {
     const isProductionMode = (args.mode === 'production');
 
     return {
-        entry: './index.js',
+        entry: './app/index.js',
         module: {
           rules: [
             {
@@ -18,6 +18,9 @@ module.exports = (env, args) => {
           ],
         },
         resolve: {
+          alias: {
+            rust: path.resolve(__dirname, "./pkg")
+          },
           extensions: ['*', '.js', '.jsx'],
         },
         output: {
@@ -32,7 +35,7 @@ module.exports = (env, args) => {
         },
         plugins: [
             new HtmlWebpackPlugin({
-                template: 'index.html'
+                template: './app/index.html'
             }),
             new WasmPackPlugin({
                 crateDirectory: path.resolve(__dirname, '.')

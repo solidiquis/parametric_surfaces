@@ -3,8 +3,8 @@ import "regenerator-runtime/runtime";
 import React, { useEffect, useRef, useReducer } from "react";
 import ReactDOM from "react-dom";
 
+const WASM = import("rust/index");
 const FPS_THROTTLE = 1000 / 60;
-const WASM = import("./pkg/index");
 
 const INITIAL_STATE = {
   wasm: null,
