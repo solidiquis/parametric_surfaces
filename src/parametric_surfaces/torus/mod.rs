@@ -4,18 +4,15 @@ mod transform;
 use crate::parametric_surfaces::ParametricSurface;
 use js_sys::{JsString, Float32Array, Number};
 use std::collections::HashMap;
-use wasm_bindgen::{JsValue, JsCast};
+use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
-use web_sys::HtmlCanvasElement;
 use web_sys::WebGlProgram as Program;
-use web_sys::WebGlShader as Shader;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlUniformLocation as UniformLocation;
 
 #[wasm_bindgen]
 pub struct Torus {
     gl: GL,
-    program: Program,
     unilocs: HashMap<String, UniformLocation>,
     indices_count: i32,
 }
@@ -89,7 +86,7 @@ impl Torus {
 
         gl.use_program(Some(&program));
 
-        Ok(Self { gl, program, unilocs, indices_count })
+        Ok(Self { gl, unilocs, indices_count })
     }
 
     #[wasm_bindgen]

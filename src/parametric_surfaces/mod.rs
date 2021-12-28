@@ -1,5 +1,5 @@
 pub mod torus;
-use js_sys::{JsString, Number};
+use js_sys::JsString;
 use std::collections::HashMap;
 use wasm_bindgen::{JsValue, JsCast};
 use web_sys::HtmlCanvasElement;
