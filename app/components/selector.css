@@ -1,0 +1,47 @@
+.container {
+  max-width: 5rem;
+  cursor: pointer;
+}
+
+.selection-box {
+  color: white;
+  display: flex;
+  flex-direction: row;
+  border-bottom: solid 1px white;
+  min-width: 5rem;
+}
+
+.selected {
+  margin-right: auto;
+  margin-top: auto;
+}
+
+.expand-direction {
+  margin-left: auto;
+  margin-top: auto;
+}
+
+.fold-direction {
+  transform: rotate(180deg);
+}
+
+.options {
+  margin-top: 0.5rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.hide {
+  display: none;
+}
+
+.option {
+  text-align: left;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.option:hover {
+  border-bottom: 1px solid white;
+}

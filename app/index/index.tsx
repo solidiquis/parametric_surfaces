@@ -1,7 +1,9 @@
 import * as React from "react";
 import { useEffect, useReducer, useRef } from "react";
 import Canvas from "@components/canvas";
+import Selector from "@components/selector";
 import { ActionType, reducer, InitialState } from "./reducer"
+import "./index.css"
 
 interface Props {
   wasmModule: Record<string, any>;
@@ -75,13 +77,21 @@ export default ({ wasmModule }: Props) => {
   }, [state.parametricSurface]);
 
   return (
-    <div>
+    <div className="box">
       { state.error ? <h1 style={{ color: "white" }}>{"Something went wrong."}</h1> :
+
+      <>
+        <Selector
+          callback={(s) => console.log(s)}
+          style={{ marginTop: "75%" }}
+        />
         <Canvas
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
           ref={canvasRef}
         />
+      </>
+
       }
     </div>
   )
