@@ -5,8 +5,6 @@ import * as ReactDOM from "react-dom";
 import Index from "@index/index";
 
 import("../pkg/index").then(wasm => {
-  console.log(wasm)
-
   ReactDOM.render(
     <Index wasmModule={wasm} />,
     document.getElementById("root")

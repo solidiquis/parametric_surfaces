@@ -14,7 +14,7 @@ const FPS_THROTTLE = 1000.0 / 60;
 export default ({ wasmModule }: Props) => {
   const [state, dispatch] = useReducer(reducer, InitialState);
   const initMount = useRef(true);
-  const initMount2 = useRef(true);
+  const initAnimation = useRef(true);
   const canvasRef = useRef(null);
   const initTime = Date.now();
   let lastDrawTime = -1;
@@ -63,12 +63,15 @@ export default ({ wasmModule }: Props) => {
   });
 
   useEffect(() => {
-    if (initMount2.current) {
-      initMount2.current = false;
+    if (initAnimation.current) {
+      initAnimation.current = false;
+      animate();
       return;
     }
 
-    animate();
+    console.log("Swapping parametric surface.")
+    clearInterval(state.animationID);
+    animate()
   }, [state.parametricSurface]);
 
   return (
