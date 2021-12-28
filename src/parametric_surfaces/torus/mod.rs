@@ -23,33 +23,22 @@ pub struct Torus {
 impl Torus {
     #[wasm_bindgen(constructor)]
     pub fn new(canvas_id: JsString) -> Self {
-        let gl = match Self::init_context(canvas_id) {
-            Ok(context) => context,
-            Err(e) => wasm_bindgen::throw_val(e)
-        };
-
-        let program = match Self::init_shader_program(&gl) {
-            Ok(prog) => prog,
-            Err(e) => wasm_bindgen::throw_val(e)
-        };
-
-        if let Err(e) = Self::init_shaders(&gl, &program) {
-            wasm_bindgen::throw_val(e)
+        match Self::try_new(canvas_id) {
+            Ok(torus) => torus,
+            Err(e) => wasm_bindgen::throw_val(e),
         }
+    }
 
-        let indices_count = match Self::init_vertices(&gl, &program) {
-            Ok(i) => i,
-            Err(e) => wasm_bindgen::throw_val(e)
-        };
-
-        let unilocs = match Self::map_uniform_locations(&gl, &program) {
-            Ok(locations) => locations,
-            Err(e) => wasm_bindgen::throw_val(e)
-        };
+    pub fn try_new(canvas_id: JsString) -> Result<Torus, JsValue> {
+        let gl = Self::init_context(canvas_id)?;
+        let program = Self::init_shader_program(&gl)?;
+        Self::init_shaders(&gl, &program)?;
+        let indices_count = Self::init_vertices(&gl, &program)?;
+        let unilocs = Self::map_uniform_locations(&gl, &program)?;
 
         gl.use_program(Some(&program));
 
-        Self { gl, program, unilocs, indices_count }
+        Ok(Self { gl, program, unilocs, indices_count })
     }
 
     #[wasm_bindgen]
