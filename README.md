@@ -1,3 +1,3 @@
 # Parametric Surfaces in the Browser
 
-- [Torus](https://parametric-surfaces.herokuapp.com/)
+[Link](https://parametric-surfaces.herokuapp.com/)
