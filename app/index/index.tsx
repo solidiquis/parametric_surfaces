@@ -20,18 +20,22 @@ export default ({ wasmModule }: Props) => {
   let lastDrawTime = -1;
 
   const animate = () => {
-    window.requestAnimationFrame(animate);
-    
-    const currTime = Date.now();
+    const animationID = setInterval(() => {
+      window.requestAnimationFrame(() => {
+        const currTime = Date.now();
 
-    if (currTime - lastDrawTime < FPS_THROTTLE)
-      return;
+        if (currTime - lastDrawTime < FPS_THROTTLE)
+          return;
 
-    lastDrawTime = currTime;
+        lastDrawTime = currTime;
 
-    const elapsedTime = (currTime - initTime) / 1000;
+        const elapsedTime = (currTime - initTime) / 1000;
 
-    state.parametricSurface.render(canvasRef.current.width, canvasRef.current.height, elapsedTime);
+        state.parametricSurface.render(canvasRef.current.width, canvasRef.current.height, elapsedTime);
+      })
+    }, FPS_THROTTLE);
+
+    dispatch({ kind: ActionType.SetAnimationID, payload: animationID });
   };
 
   useEffect(() => {
