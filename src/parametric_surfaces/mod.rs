@@ -1,4 +1,5 @@
 pub mod torus;
+pub mod triforce;
 use js_sys::JsString;
 use std::collections::HashMap;
 use wasm_bindgen::{JsValue, JsCast};
@@ -9,6 +10,8 @@ use web_sys::WebGlShader as Shader;
 use web_sys::WebGlUniformLocation as UniformLocation;
 
 trait ParametricSurface {
+    fn init_vertices(gl: &GL, program: &Program) -> Result<Option<i32>, JsValue>;
+
     fn init_context(canvas_id: JsString) -> Result<GL, JsValue> {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
@@ -95,6 +98,4 @@ trait ParametricSurface {
 
         Ok(unilocs)
     }
-
-    fn init_vertices(gl: &GL, program: &Program) -> Result<i32, JsValue>;
 }

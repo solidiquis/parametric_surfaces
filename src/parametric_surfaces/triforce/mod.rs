@@ -11,22 +11,19 @@ use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlUniformLocation as UniformLocation;
 
 #[wasm_bindgen]
-pub struct Torus {
+pub struct Triforce {
     gl: GL,
     unilocs: HashMap<String, UniformLocation>,
-    indices_count: i32,
 }
 
-impl ParametricSurface for Torus {
+impl ParametricSurface for Triforce {
     fn init_vertices(gl: &GL, program: &Program) -> Result<Option<i32>, JsValue> {
-        let (positions, colors, indices_count) = geometry::compute_vertices();
-
         let positions_buffer = match gl.create_buffer() {
             None => return Err(JsValue::from_str("Failed to initialize positions buffer.")),
             Some(buf) => {
                 gl.bind_buffer(GL::ARRAY_BUFFER, Some(&buf));        
 
-                let slice: &[f32] = &positions;
+                let slice: &[f32] = &geometry::VERTICES;
                 let array = Float32Array::from(slice).buffer();
 
                 gl.buffer_data_with_opt_array_buffer(
@@ -42,7 +39,7 @@ impl ParametricSurface for Torus {
             Some(buf) => {
                 gl.bind_buffer(GL::ARRAY_BUFFER, Some(&buf));
 
-                let slice: &[f32] = &colors;
+                let slice: &[f32] = &geometry::COLORS;
                 let array = Float32Array::from(slice).buffer();
 
                 gl.buffer_data_with_opt_array_buffer(
@@ -63,12 +60,12 @@ impl ParametricSurface for Torus {
         gl.vertex_attrib_pointer_with_i32(color, 3, GL::FLOAT, false, 0, 0);
         gl.enable_vertex_attrib_array(color);
 
-        Ok(Some(indices_count))
+        Ok(None)
     }
 }
 
 #[wasm_bindgen]
-impl Torus {
+impl Triforce {
     #[wasm_bindgen(constructor)]
     pub fn new(canvas_id: JsString) -> Self {
         match Self::try_new(canvas_id) {
@@ -77,16 +74,16 @@ impl Torus {
         }
     }
 
-    fn try_new(canvas_id: JsString) -> Result<Torus, JsValue> {
+    fn try_new(canvas_id: JsString) -> Result<Triforce, JsValue> {
         let gl = Self::init_context(canvas_id)?;
         let program = Self::init_shader_program(&gl)?;
         Self::init_shaders(&gl, &program, shaders::VS_SRC_GLSL, shaders::FS_SRC_GLSL)?;
-        let indices_count = Self::init_vertices(&gl, &program)?.unwrap();
+        Self::init_vertices(&gl, &program)?;
         let unilocs = Self::map_uniform_locations(&gl, &program)?;
 
         gl.use_program(Some(&program));
 
-        Ok(Self { gl, unilocs, indices_count })
+        Ok(Self { gl, unilocs })
     }
 
     #[wasm_bindgen]
@@ -108,7 +105,7 @@ impl Torus {
         self.gl.uniform_matrix4fv_with_f32_array(Some(v_loc), false, &transform::view_matrix());
         self.gl.uniform_matrix4fv_with_f32_array(Some(p_loc), false, &transform::projection_matrix(width, height));
 
-        self.gl.draw_arrays(GL::POINTS, 0, self.indices_count);
+        self.gl.draw_arrays(GL::TRIANGLES, 0, 9);
         self.gl.flush();
     }
 }

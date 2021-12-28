@@ -13,6 +13,8 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 const FPS_THROTTLE = 1000.0 / 60;
 
+const SHAPES = ["Torus", "Triforce"];
+
 export default ({ wasmModule }: Props) => {
   const [state, dispatch] = useReducer(reducer, InitialState);
   const initMount = useRef(true);
@@ -38,6 +40,21 @@ export default ({ wasmModule }: Props) => {
     }, FPS_THROTTLE);
 
     dispatch({ kind: ActionType.SetAnimationID, payload: animationID });
+  };
+
+  const swapSurface = (surface: string) => {
+    const actionType = { kind: ActionType.SetSurface };
+
+    switch (surface) {
+      case "Torus":
+        dispatch({ ...actionType, payload: new wasmModule.Torus("parametric-surface") });
+        return;
+      case "Triforce":
+        dispatch({ ...actionType, payload: new wasmModule.Triforce("parametric-surface") });
+        return;
+      default:
+        return
+    }
   };
 
   useEffect(() => {
@@ -82,7 +99,8 @@ export default ({ wasmModule }: Props) => {
 
       <>
         <Selector
-          callback={(s) => console.log(s)}
+          options={SHAPES}
+          callback={(s) => swapSurface(s)}
           style={{ marginTop: "75%" }}
         />
         <Canvas

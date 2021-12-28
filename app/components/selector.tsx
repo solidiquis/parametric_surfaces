@@ -2,15 +2,14 @@ import * as React from "react";
 import { useState } from "react";
 import "./selector.css";
 
-const SHAPES = ["Torus", "Sphere", "Triangle"];
-
 interface Props {
+  options: Array<string>;
   callback: (message: string) => void;
   [x: string]: any;
 }
 
-export default ({ callback, ...props }: Props) => {
-  const [selected, setSelected] = useState(SHAPES[0]);
+export default ({ options, callback, ...props }: Props) => {
+  const [selected, setSelected] = useState(options[0]);
   const [hover, setHover] = useState(false);
   const [expand, setExpand] = useState(false);
 
@@ -32,7 +31,7 @@ export default ({ callback, ...props }: Props) => {
         <div className={`expand-direction ${expand ? "fold-direction" : ""}`}>{expandIcon()}</div>
       </div>
       <div className={`options ${expand ? "" : "hide"}`}>
-        {SHAPES.map((i) => (
+        {options.map((i) => (
           <div
             key={i}
             className="option"
