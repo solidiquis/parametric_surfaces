@@ -4,8 +4,6 @@ use web_sys::WebGlRenderingContext as GL;
 
 struct Shader<'a> {
     pub program: Program,
-    pub vsrc: &'static str,
-    pub fsrc: &'static str,
     pub gl: &'a GL
 }
 
@@ -62,6 +60,6 @@ impl<'a> Shader<'a> {
         gl.delete_shader(Some(&vertex_shader));
         gl.delete_shader(Some(&fragment_shader));
 
-        Ok(Self { program, gl, vsrc, fsrc })
+        Ok(Self { program, gl })
     }
 }
