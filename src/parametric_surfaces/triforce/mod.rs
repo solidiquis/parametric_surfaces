@@ -1,7 +1,6 @@
 mod geometry;
 mod shaders;
-use crate::{gl_context, shader};
-use crate::{fmt_mat_f32, buf_f32};
+use crate::{gl_context, shader, fmt_mat_f32, buf_f32};
 use js_sys::{JsString, Number};
 use nalgebra_glm as glm;
 use std::f32::consts::PI;

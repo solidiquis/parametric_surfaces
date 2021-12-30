@@ -1,4 +1,4 @@
-pub const VS_SRC_GLSL: &'static str = r#"
+pub const VS_GLSL: &'static str = r#"
 
 attribute vec3 position;
 attribute vec3 color;
@@ -15,7 +15,7 @@ void main()
 }
 "#;
 
-pub const FS_SRC_GLSL: &'static str = r#"
+pub const FS_GLSL: &'static str = r#"
 
 precision mediump float;
 varying   vec4 vColor;
