@@ -42,6 +42,7 @@ export default ({ wasmModule }: Props) => {
     dispatch({ kind: ActionType.SetAnimationID, payload: animationID });
   };
 
+  // TODO: Much moist; make dry. 
   const swapSurface = (surface: string) => {
     const actionType = { kind: ActionType.SetSurface };
 
