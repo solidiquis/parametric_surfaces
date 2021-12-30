@@ -59,6 +59,9 @@ impl Triforce {
         self.triforce_shader.set_mat4_f32(&self.gl, "v", &self.view_matrix())?;
         self.triforce_shader.set_mat4_f32(&self.gl, "p", &self.projection_matrix(width, height))?;
 
+        self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
+        self.gl.flush();
+
         Ok(())
     }
 
