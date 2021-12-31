@@ -73,6 +73,12 @@ impl Shader {
         Ok(())
     }
 
+    pub fn set_vec3_f32(&self, gl: &GL, uniform: &str, data: &[f32]) -> ShaderResult<()> {
+        let location = self.get_uniform_location(gl, uniform)?;
+        gl.uniform3fv_with_f32_array(Some(&location), data);
+        Ok(())
+    }
+
     pub fn set_i32(&self, gl: &GL, uniform: &str, data: i32) -> ShaderResult<()> {
         let location = self.get_uniform_location(gl, uniform)?;
         gl.uniform1i(Some(&location), data);

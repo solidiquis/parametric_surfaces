@@ -15,7 +15,10 @@ use web_sys::WebGlTexture as Texture;
 pub struct Triforce {
     gl: GL,
     triforce_shader: shader::Shader,
-    texture: Texture
+    texture: Texture,
+    light_source: [f32; 3],
+    light_color: [f32; 3],
+    ambient_light: [f32; 3],
 }
 
 type TriforceResult<T> = Result<T, JsValue>;
@@ -36,8 +39,11 @@ impl Triforce {
             &gl, shaders::TRIFORCE_VS_GLSL, shaders::TRIFORCE_FS_GLSL
         )?;
         let texture = Self::init_vertices(&gl, &triforce_shader.program)?;
+        let light_source = [-1.0, 0.0, 1.0];
+        let light_color = [1.0, 1.0, 1.0];
+        let ambient_light = [0.2, 0.2, 0.2];
 
-        Ok( Self { gl, triforce_shader, texture } )
+        Ok( Self { gl, triforce_shader, texture, light_source, light_color, ambient_light } )
     }
 
     #[wasm_bindgen]
@@ -57,25 +63,39 @@ impl Triforce {
         self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 
         self.triforce_shader.use_shader(&self.gl);
+        self.triforce_shader.set_vec3_f32(&self.gl, "lightSource", &self.light_source)?;
+        self.triforce_shader.set_vec3_f32(&self.gl, "lightColor", &self.light_color)?;
+        self.triforce_shader.set_vec3_f32(&self.gl, "ambientLight", &self.ambient_light)?;
 
+        // View-model matrices:
+        let tvm = self.view_matrix() * self.top_model_matrix();
+        let blvm = self.view_matrix() * self.bottom_left_model_matrix();
+        let brvm = self.view_matrix() * self.bottom_right_model_matrix();
+
+        let p  = self.projection_matrix(width, height);
         self.triforce_shader.set_i32(&self.gl, "uSampler", 0)?;
-        self.triforce_shader.set_mat4_f32(&self.gl, "v", &self.view_matrix())?;
-        self.triforce_shader.set_mat4_f32(&self.gl, "p", &self.projection_matrix(width, height))?;
+        self.triforce_shader.set_mat4_f32(&self.gl, "p", &fmt_mat_f32!(p))?;
 
         // Top triangle
-        self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.top_model_matrix())?;
+        self.triforce_shader.set_mat4_f32(&self.gl, "vm", &fmt_mat_f32!(tvm))?;
+        let n_tvm = glm::inverse_transpose(tvm); // normal matrix
+        self.triforce_shader.set_mat4_f32(&self.gl, "n", &fmt_mat_f32!(n_tvm))?;
         self.gl.active_texture(GL::TEXTURE0);
         self.gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
         self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
 
         // Bottom left triangle
-        self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.bottom_left_model_matrix())?;
+        self.triforce_shader.set_mat4_f32(&self.gl, "vm", &fmt_mat_f32!(blvm))?;
+        let n_blvm = glm::inverse_transpose(blvm); // normal matrix
+        self.triforce_shader.set_mat4_f32(&self.gl, "n", &fmt_mat_f32!(n_blvm))?;
         self.gl.active_texture(GL::TEXTURE0);
         self.gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
         self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
 
         // Bottom right triangle
-        self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.bottom_right_model_matrix())?;
+        self.triforce_shader.set_mat4_f32(&self.gl, "vm", &fmt_mat_f32!(brvm))?;
+        let n_brvm = glm::inverse_transpose(brvm); // normal matrix
+        self.triforce_shader.set_mat4_f32(&self.gl, "n", &fmt_mat_f32!(n_brvm))?;
         self.gl.active_texture(GL::TEXTURE0);
         self.gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
         self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
@@ -147,47 +167,37 @@ impl Triforce {
         Ok(texture)
     }
 
-    fn top_model_matrix(&self) -> Vec<f32> {
+    fn top_model_matrix(&self) -> glm::TMat4<f32> {
         let identity = glm::TMat4::identity();
         let transl = glm::translate(&identity, &glm::vec3(0.0, 0.5, -3.0));
-        let mat = transl;
-
-        fmt_mat_f32!(mat)
+        transl
     }
 
-    fn bottom_left_model_matrix(&self) -> Vec<f32> {
+    fn bottom_left_model_matrix(&self) -> glm::TMat4<f32> {
         let identity = glm::TMat4::identity();
         let transl = glm::translate(&identity, &glm::vec3(-0.5, -0.5, -3.0));
-        let mat = transl;
-
-        fmt_mat_f32!(mat)
+        transl
     }
 
-    fn bottom_right_model_matrix(&self) -> Vec<f32> {
+    fn bottom_right_model_matrix(&self) -> glm::TMat4<f32> {
         let identity = glm::TMat4::identity();
         let transl = glm::translate(&identity, &glm::vec3(0.5, -0.5, -3.0));
-        let mat = transl;
-
-        fmt_mat_f32!(mat)
+        transl
     }
 
-    fn view_matrix(&self) -> Vec<f32> {
+    fn view_matrix(&self) -> glm::TMat4<f32> {
         let cam_position = glm::vec3(0.0, 0.0, 0.0);
         let cam_target = glm::vec3(0.0, 0.0, -1.0);
         let cam_up = glm::vec3(0.0, 1.0, 0.0);
-        let mat = glm::look_at(&cam_position, &cam_target, &cam_up);
-
-        fmt_mat_f32!(mat)
+        glm::look_at(&cam_position, &cam_target, &cam_up)
     }
 
-    fn projection_matrix(&self, canvas_width: f64, canvas_height: f64) -> Vec<f32> {
+    fn projection_matrix(&self, canvas_width: f64, canvas_height: f64) -> glm::TMat4<f32> {
         let aspect_ratio = canvas_width as f32 / canvas_height as f32;
         let fov = PI / 4.0;
         let near = 0.1;
         let far = 100.0;
-        let mat = glm::perspective(aspect_ratio, fov, near, far);
-
-        fmt_mat_f32!(mat)
+        glm::perspective(aspect_ratio, fov, near, far)
     }
 }
 
