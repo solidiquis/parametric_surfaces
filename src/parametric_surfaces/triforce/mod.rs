@@ -45,7 +45,7 @@ impl Triforce {
         }
     }
 
-    fn try_render(&self, canvas_width: Number, canvas_height: Number, dtheta: Number) -> TriforceResult<()> {
+    fn try_render(&self, canvas_width: Number, canvas_height: Number, _dtheta: Number) -> TriforceResult<()> {
         let width = canvas_width.as_f64().unwrap();
         let height = canvas_height.as_f64().unwrap();
 
@@ -54,11 +54,19 @@ impl Triforce {
         self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 
         self.triforce_shader.use_shader(&self.gl);
-        self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.model_matrix(dtheta))?;
+
         self.triforce_shader.set_mat4_f32(&self.gl, "v", &self.view_matrix())?;
         self.triforce_shader.set_mat4_f32(&self.gl, "p", &self.projection_matrix(width, height))?;
 
+        self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.top_model_matrix())?;
         self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
+
+        self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.bottom_left_model_matrix())?;
+        self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
+
+        self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.bottom_right_model_matrix())?;
+        self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
+
         self.gl.flush();
 
         Ok(())
@@ -104,12 +112,26 @@ impl Triforce {
         Ok(())
     }
 
-    fn model_matrix(&self, dtheta: Number) -> Vec<f32> {
-        let theta = ((PI / 4.0) + (dtheta.as_f64().unwrap() as f32)) % (2.0 * PI);
+    fn top_model_matrix(&self) -> Vec<f32> {
         let identity = glm::TMat4::identity();
-        let rotate = glm::rotate(&identity, theta, &glm::vec3(0.0, 1.0, 0.0));
-        let transl = glm::translate(&identity, &glm::vec3(0.0, 0.0, -2.0));
-        let mat = transl * rotate;
+        let transl = glm::translate(&identity, &glm::vec3(0.0, 0.5, -3.0));
+        let mat = transl;
+
+        fmt_mat_f32!(mat)
+    }
+
+    fn bottom_left_model_matrix(&self) -> Vec<f32> {
+        let identity = glm::TMat4::identity();
+        let transl = glm::translate(&identity, &glm::vec3(-0.5, -0.5, -3.0));
+        let mat = transl;
+
+        fmt_mat_f32!(mat)
+    }
+
+    fn bottom_right_model_matrix(&self) -> Vec<f32> {
+        let identity = glm::TMat4::identity();
+        let transl = glm::translate(&identity, &glm::vec3(0.5, -0.5, -3.0));
+        let mat = transl;
 
         fmt_mat_f32!(mat)
     }

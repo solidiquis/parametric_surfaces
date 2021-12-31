@@ -48,6 +48,10 @@ module.exports = (env, args) => {
           asyncWebAssembly: true,
         },
         devServer: {
+          static: {
+            directory: path.join(__dirname, 'public'),
+            publicPath: '/public',
+          },
           hot: true
         },
         plugins: [

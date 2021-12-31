@@ -74,8 +74,8 @@ export default ({ wasmModule }: Props) => {
     }
 
     try {
-      const torus = new wasmModule.Torus("parametric-surface");
-      dispatch({ kind: ActionType.SetSurface, payload: torus });
+      const triforce = new wasmModule.Triforce("parametric-surface");
+      dispatch({ kind: ActionType.SetSurface, payload: triforce });
     } catch(e) {
       dispatch({ kind: ActionType.Err, payload: `Failed to initialize parametric surface with error: ${e}` });
       return;
