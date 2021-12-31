@@ -4,6 +4,7 @@ use crate::{gl_context, shader, texture, fmt_mat_f32, buf_f32};
 use js_sys::{JsString, Number};
 use nalgebra_glm as glm;
 use std::f32::consts::PI;
+use std::mem;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext as GL;
@@ -61,16 +62,19 @@ impl Triforce {
         self.triforce_shader.set_mat4_f32(&self.gl, "v", &self.view_matrix())?;
         self.triforce_shader.set_mat4_f32(&self.gl, "p", &self.projection_matrix(width, height))?;
 
+        // Top triangle
         self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.top_model_matrix())?;
         self.gl.active_texture(GL::TEXTURE0);
         self.gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
         self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
 
+        // Bottom left triangle
         self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.bottom_left_model_matrix())?;
         self.gl.active_texture(GL::TEXTURE0);
         self.gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
         self.gl.draw_arrays(GL::TRIANGLES, 0, 3);
 
+        // Bottom right triangle
         self.triforce_shader.set_mat4_f32(&self.gl, "m", &self.bottom_right_model_matrix())?;
         self.gl.active_texture(GL::TEXTURE0);
         self.gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
@@ -97,8 +101,29 @@ impl Triforce {
         let position_attr = gl
             .get_attrib_location(program, "position") as u32;
 
-        gl.vertex_attrib_pointer_with_i32(position_attr, 3, GL::FLOAT, false, 0, 0);
+        let stride = (6 * mem::size_of::<f32>()) as i32;
+        gl.vertex_attrib_pointer_with_i32(position_attr, 3, GL::FLOAT, false, stride, 0);
         gl.enable_vertex_attrib_array(position_attr);
+
+        // *======== Normals data ========*
+        let normals_buffer = gl.create_buffer()
+            .ok_or_else(|| JsValue::from_str("Failed to initialize normals vbo."))?;
+
+        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&normals_buffer));
+
+        let normals_data = buf_f32!(&geometry::VERTICES);
+
+        gl.buffer_data_with_opt_array_buffer(
+            GL::ARRAY_BUFFER, Some(&normals_data), GL::STATIC_DRAW
+        );
+
+        let normal_attr = gl
+            .get_attrib_location(program, "normal") as u32;
+
+        let stride = (6 * mem::size_of::<f32>()) as i32;
+        let offset = (3 * mem::size_of::<f32>()) as i32;
+        gl.vertex_attrib_pointer_with_i32(normal_attr, 3, GL::FLOAT, false, stride, offset);
+        gl.enable_vertex_attrib_array(normal_attr);
 
         // *======== Textures data ========*
         let textures_buffer = gl.create_buffer()
