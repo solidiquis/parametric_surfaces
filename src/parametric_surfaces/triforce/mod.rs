@@ -120,7 +120,6 @@ impl Triforce {
         let normal_attr = gl
             .get_attrib_location(program, "normal") as u32;
 
-        let stride = (6 * mem::size_of::<f32>()) as i32;
         let offset = (3 * mem::size_of::<f32>()) as i32;
         gl.vertex_attrib_pointer_with_i32(normal_attr, 3, GL::FLOAT, false, stride, offset);
         gl.enable_vertex_attrib_array(normal_attr);
