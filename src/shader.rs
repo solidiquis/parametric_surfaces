@@ -1,6 +1,7 @@
 use wasm_bindgen::JsValue;
 use web_sys::WebGlProgram as Program;
 use web_sys::WebGlRenderingContext as GL;
+use web_sys::WebGlUniformLocation;
 
 pub struct Shader {
     pub program: Program
@@ -67,11 +68,21 @@ impl Shader {
     }
 
     pub fn set_mat4_f32(&self, gl: &GL, uniform: &str, data: &[f32]) -> ShaderResult<()> {
-        let location = gl.get_uniform_location(&self.program, uniform)
-            .ok_or_else(|| JsValue::from(format!("Failed to get location for uniform, '{}'", uniform)))?;
-
+        let location = self.get_uniform_location(gl, uniform)?;
         gl.uniform_matrix4fv_with_f32_array(Some(&location), false, data);
-
         Ok(())
     }
+
+    pub fn set_i32(&self, gl: &GL, uniform: &str, data: i32) -> ShaderResult<()> {
+        let location = self.get_uniform_location(gl, uniform)?;
+        gl.uniform1i(Some(&location), data);
+        Ok(())
+    }
+
+    fn get_uniform_location(&self, gl: &GL, uniform: &str) -> ShaderResult<WebGlUniformLocation> {
+        let location = gl.get_uniform_location(&self.program, uniform)
+            .ok_or_else(|| JsValue::from(format!("Failed to get location for uniform, '{}'", uniform)))?;
+        Ok(location)
+    }
+
 }

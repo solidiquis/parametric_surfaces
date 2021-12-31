@@ -6,7 +6,7 @@ use web_sys::WebGlTexture;
 
 type TextureError<T> = Result<T, JsValue>;
 
-fn load_texture(gl: &GL, url: &str) -> TextureError<WebGlTexture> {
+pub fn load_texture(gl: &GL, url: &str) -> TextureError<WebGlTexture> {
     let texture = gl.create_texture()
         .ok_or_else(|| JsValue::from_str("Failed to initialize texture."))?;
 
