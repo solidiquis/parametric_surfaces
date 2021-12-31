@@ -10,6 +10,7 @@ pub fn load_texture(gl: &GL, url: &str) -> TextureError<WebGlTexture> {
     let texture = gl.create_texture()
         .ok_or_else(|| JsValue::from_str("Failed to initialize texture."))?;
 
+    // Load stand-in texture until actual texture finishes downloading.
     let pixel: [u8; 4] = [0, 0, 0, 255];
     gl.bind_texture(GL::TEXTURE_2D, Some(&texture));
     gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
@@ -29,6 +30,8 @@ pub fn load_texture(gl: &GL, url: &str) -> TextureError<WebGlTexture> {
     let t = texture.clone();
     let i = img.clone();
     let g = gl.clone();
+
+    // Closure responsible for setting actual texture once img finishes downloading.
     let onload = Closure::wrap(Box::new( move || {
         g.bind_texture(GL::TEXTURE_2D, Some(&t));
         if let Err(e) = g.tex_image_2d_with_u32_and_u32_and_image(
@@ -48,6 +51,11 @@ pub fn load_texture(gl: &GL, url: &str) -> TextureError<WebGlTexture> {
     }) as Box<dyn Fn()>);
 
     img.set_onload(Some(onload.as_ref().unchecked_ref()));
+
+    // Rust will invalidate the JS closure if onload gets dropped, resulting in a runtime error
+    // when the closure gets run. Since this is a global handler, we'll just drop onload without
+    // invalidating the associated JS callback. This is an intentional memory leak.
+    onload.forget();
 
     img.set_src(url);
 
