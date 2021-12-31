@@ -53,7 +53,7 @@ pub fn load_texture(gl: &GL, url: &str) -> TextureError<WebGlTexture> {
     img.set_onload(Some(onload.as_ref().unchecked_ref()));
 
     // Rust will invalidate the JS closure if onload gets dropped, resulting in a runtime error
-    // when the closure gets run. Since this is a global handler, we'll just drop onload without
+    // when the closure gets run. Since this is a global handler, we'll just "forget" onload without
     // invalidating the associated JS callback. This is an intentional memory leak.
     onload.forget();
 
