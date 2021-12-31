@@ -21,21 +21,16 @@ export default ({ wasmModule }: Props) => {
   const initAnimation = useRef(true);
   const canvasRef = useRef(null);
   const initTime = Date.now();
-  let lastDrawTime = -1;
 
   const animate = () => {
     const animationID = setInterval(() => {
       window.requestAnimationFrame(() => {
-        const currTime = Date.now();
-
-        if (currTime - lastDrawTime < FPS_THROTTLE)
-          return;
-
-        lastDrawTime = currTime;
-
-        const elapsedTime = (currTime - initTime) / 1000;
-
-        state.parametricSurface.render(canvasRef.current.width, canvasRef.current.height, elapsedTime);
+        const elapsedTime = (Date.now() - initTime) / 1000;
+        state.parametricSurface.render(
+          canvasRef.current.width,
+          canvasRef.current.height,
+          elapsedTime
+        );
       })
     }, FPS_THROTTLE);
 
