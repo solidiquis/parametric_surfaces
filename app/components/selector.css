@@ -1,6 +1,11 @@
 .container {
   max-width: 5rem;
   cursor: pointer;
+  height: max-content;
+}
+
+.container:focus {
+  outline: none;
 }
 
 .selection-box {

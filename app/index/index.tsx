@@ -13,7 +13,7 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 const FPS_THROTTLE = 1000.0 / 60;
 
-const SHAPES = ["Torus", "Triforce", "Cube"];
+const SHAPES = ["Torus", "Cube"];
 
 export default ({ wasmModule }: Props) => {
   const [state, dispatch] = useReducer(reducer, InitialState);
