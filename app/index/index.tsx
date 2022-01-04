@@ -13,7 +13,7 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 const FPS_THROTTLE = 1000.0 / 60;
 
-const SHAPES = ["Torus", "Triforce"];
+const SHAPES = ["Torus", "Triforce", "Cube"];
 
 export default ({ wasmModule }: Props) => {
   const [state, dispatch] = useReducer(reducer, InitialState);
@@ -42,6 +42,9 @@ export default ({ wasmModule }: Props) => {
     const actionType = { kind: ActionType.SetSurface };
 
     switch (surface) {
+      case "Cube":
+        dispatch({ ...actionType, payload: new wasmModule.Cube("parametric-surface") });
+        return;
       case "Torus":
         dispatch({ ...actionType, payload: new wasmModule.Torus("parametric-surface") });
         return;
@@ -69,8 +72,8 @@ export default ({ wasmModule }: Props) => {
     }
 
     try {
-      const triforce = new wasmModule.Triforce("parametric-surface");
-      dispatch({ kind: ActionType.SetSurface, payload: triforce });
+      const torus = new wasmModule.Torus("parametric-surface");
+      dispatch({ kind: ActionType.SetSurface, payload: torus });
     } catch(e) {
       dispatch({ kind: ActionType.Err, payload: `Failed to initialize parametric surface with error: ${e}` });
       return;

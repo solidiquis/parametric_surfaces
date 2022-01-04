@@ -54,9 +54,10 @@ impl Triforce {
         }
     }
 
-    fn try_render(&self, canvas_width: Number, canvas_height: Number, _dtheta: Number) -> TriforceResult<()> {
+    fn try_render(&self, canvas_width: Number, canvas_height: Number, dtheta: Number) -> TriforceResult<()> {
         let width = canvas_width.as_f64().unwrap();
         let height = canvas_height.as_f64().unwrap();
+        let theta = dtheta.as_f64().unwrap() as f32;
 
         self.gl.clear_color(0.0, 0.0, 0.0, 1.0);
         self.gl.clear_depth(1.0);
@@ -68,9 +69,9 @@ impl Triforce {
         self.triforce_shader.set_vec3_f32(&self.gl, "ambientLight", &self.ambient_light)?;
 
         // View-model matrices:
-        let tvm = self.view_matrix() * self.top_model_matrix();
-        let blvm = self.view_matrix() * self.bottom_left_model_matrix();
-        let brvm = self.view_matrix() * self.bottom_right_model_matrix();
+        let tvm = self.view_matrix() * self.top_model_matrix(theta);
+        let blvm = self.view_matrix() * self.bottom_left_model_matrix(theta);
+        let brvm = self.view_matrix() * self.bottom_right_model_matrix(theta);
 
         let p  = self.projection_matrix(width, height);
         self.triforce_shader.set_i32(&self.gl, "uSampler", 0)?;
@@ -167,22 +168,32 @@ impl Triforce {
         Ok(texture)
     }
 
-    fn top_model_matrix(&self) -> glm::TMat4<f32> {
+    fn top_model_matrix(&self, dtheta: f32) -> glm::TMat4<f32> {
+        let theta = ((PI / 4.0) + dtheta) % (2.0 * PI);
         let identity = glm::TMat4::identity();
-        let transl = glm::translate(&identity, &glm::vec3(0.0, 0.5, -3.0));
-        transl
+        let rotate = glm::rotate(&identity, theta, &glm::vec3(0.0, 1.0, 0.0));
+        let transl = glm::translate(&identity, &glm::vec3(0.0, 0.5, -4.0));
+        transl * rotate
     }
 
-    fn bottom_left_model_matrix(&self) -> glm::TMat4<f32> {
+    fn bottom_left_model_matrix(&self, dtheta: f32) -> glm::TMat4<f32> {
+        let theta = ((PI / 4.0) + dtheta) % (2.0 * PI);
+        let x = 0.5 * theta.cos();
+        let z = -4.0 + 0.5 * theta.sin();
         let identity = glm::TMat4::identity();
-        let transl = glm::translate(&identity, &glm::vec3(-0.5, -0.5, -3.0));
-        transl
+        let rotate = glm::rotate(&identity, theta, &glm::vec3(0.0, 1.0, 0.0));
+        let transl = glm::translate(&identity, &glm::vec3(x, -0.5, z));
+        transl * rotate
     }
 
-    fn bottom_right_model_matrix(&self) -> glm::TMat4<f32> {
+    fn bottom_right_model_matrix(&self, dtheta: f32) -> glm::TMat4<f32> {
+        let theta = ((PI / 4.0) + dtheta) % (2.0 * PI);
+        let x = -0.5 * theta.cos();
+        let z = -4.0 + 0.5 * theta.sin();
         let identity = glm::TMat4::identity();
-        let transl = glm::translate(&identity, &glm::vec3(0.5, -0.5, -3.0));
-        transl
+        let rotate = glm::rotate(&identity, theta, &glm::vec3(0.0, 1.0, 0.0));
+        let transl = glm::translate(&identity, &glm::vec3(x, -0.5, z));
+        transl * rotate
     }
 
     fn view_matrix(&self) -> glm::TMat4<f32> {
