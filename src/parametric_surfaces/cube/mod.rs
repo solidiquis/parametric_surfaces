@@ -60,12 +60,12 @@ impl Cube {
 
         let theta = ((PI / 4.0) + (dtheta.as_f64().unwrap() as f32)) % (2.0 * PI);
         let identity = glm::TMat4::identity();
+        let transl = glm::translate(&identity, &glm::vec3(0.0, 0.0, -2.5));
 
         // *======== Outer cube ========*
         self.cube_shader.set_vec3_f32(&self.gl, "color", &[0.0, 1.0, 0.0])?;
         self.cube_shader.set_mat4_f32(&self.gl, "m", &(|| {
             let rotate = glm::rotate(&identity, theta, &glm::vec3(0.0, 1.0, 0.0));
-            let transl = glm::translate(&identity, &glm::vec3(0.0, 0.0, -3.0));
             let mat = transl * rotate;
             fmt_mat_f32!(mat)
         })())?;
@@ -76,7 +76,6 @@ impl Cube {
         self.cube_shader.set_mat4_f32(&self.gl, "m", &(|| {
             let scale = glm::scale(&identity, &glm::vec3(0.6, 0.6, 0.6));
             let rotate = glm::rotate(&identity, theta, &glm::vec3(1.0, 1.0, 0.0));
-            let transl = glm::translate(&identity, &glm::vec3(0.0, 0.0, -3.0));
             let mat = transl * rotate * scale;
             fmt_mat_f32!(mat)
         })())?;
@@ -87,7 +86,6 @@ impl Cube {
         self.cube_shader.set_mat4_f32(&self.gl, "m", &(|| {
             let scale = glm::scale(&identity, &glm::vec3(0.3, 0.3, 0.3));
             let rotate = glm::rotate(&identity, theta, &glm::vec3(1.0, 1.0, 0.0));
-            let transl = glm::translate(&identity, &glm::vec3(0.0, 0.0, -3.0));
             let mat = transl * rotate * scale;
             fmt_mat_f32!(mat)
         })())?;
@@ -117,16 +115,6 @@ impl Cube {
         gl.enable_vertex_attrib_array(position_attr);
 
         Ok(())
-    }
-
-    fn model_matrix(&self, dtheta: Number) -> Vec<f32> {
-        let theta = ((PI / 4.0) + (dtheta.as_f64().unwrap() as f32)) % (2.0 * PI);
-        let identity = glm::TMat4::identity();
-        let rotate = glm::rotate(&identity, theta, &glm::vec3(0.0, 1.0, 0.0));
-        let transl = glm::translate(&identity, &glm::vec3(0.0, 0.0, -3.0));
-        let mat = transl * rotate;
-
-        fmt_mat_f32!(mat)
     }
 
     fn view_matrix(&self) -> Vec<f32> {
